@@ -25,8 +25,6 @@ interface CustomData {
   website?: string;
 }
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export default function Footer() {
   const { t } = useTranslation("components");
   const { common } = useGlobalStore();
@@ -39,12 +37,6 @@ export default function Footer() {
       return {};
     }
   }, [site.custom_data]);
-
-  // 联系邮箱来自后台站点设置（contacts.email），更换邮箱无需重新发布前端。
-  const contactEmail = useMemo(() => {
-    const email = customData.contacts?.email?.trim() ?? "";
-    return EMAIL_PATTERN.test(email) ? email : "";
-  }, [customData]);
 
   const links = useMemo(
     () => [
@@ -120,15 +112,6 @@ export default function Footer() {
         <div>
           <strong className="text-foreground">{site.site_name}</strong> ©{" "}
           {t("footer.copyright", "All rights reserved")}.
-          {contactEmail && (
-            <>
-              {" "}
-              <span>{t("footer.contact", "Contact")}:</span>{" "}
-              <a className="underline" href={`mailto:${contactEmail}`}>
-                {contactEmail}
-              </a>
-            </>
-          )}
           <div>
             <Link className="underline" to="/tos">
               {t("footer.tos", "Terms of Service")}
