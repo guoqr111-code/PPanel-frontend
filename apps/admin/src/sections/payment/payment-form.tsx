@@ -29,6 +29,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@workspace/ui/components/sheet";
+import { Textarea } from "@workspace/ui/components/textarea";
 import { MarkdownEditor } from "@workspace/ui/composed/editor/markdown";
 import { EnhancedInput } from "@workspace/ui/composed/enhanced-input";
 import { Icon } from "@workspace/ui/composed/icon";
@@ -405,25 +406,43 @@ export default function PaymentForm<T extends { platform?: string }>({
                           {currentFieldDescriptions[fieldKey]}
                         </FormLabel>
                         <FormControl>
-                          <EnhancedInput
-                            disabled={fieldKey === "webhook_secret"}
-                            onValueChange={(value) => {
-                              const newConfig = { ...configValues };
-                              newConfig[fieldKey] = value;
-                              form.setValue("config", newConfig);
-                            }}
-                            placeholder={t("configPlaceholder", {
-                              field: currentFieldDescriptions[fieldKey],
-                              defaultValue:
-                                "Please fill in the provided {{field}} configuration",
-                            })}
-                            value={
-                              configValues &&
-                              configValues[fieldKey] !== undefined
-                                ? configValues[fieldKey]
-                                : ""
-                            }
-                          />
+                          {platformValue === "WaffoPancake" &&
+                          fieldKey === "private_key" ? (
+                            // PEM 私钥是多行文本，用文本域可以直接粘贴，无需手写 \n。
+                            <Textarea
+                              className="min-h-32 font-mono text-xs"
+                              onChange={(event) => {
+                                form.setValue("config", {
+                                  ...configValues,
+                                  [fieldKey]: event.target.value,
+                                });
+                              }}
+                              placeholder={
+                                "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+                              }
+                              value={configValues?.[fieldKey] ?? ""}
+                            />
+                          ) : (
+                            <EnhancedInput
+                              disabled={fieldKey === "webhook_secret"}
+                              onValueChange={(value) => {
+                                const newConfig = { ...configValues };
+                                newConfig[fieldKey] = value;
+                                form.setValue("config", newConfig);
+                              }}
+                              placeholder={t("configPlaceholder", {
+                                field: currentFieldDescriptions[fieldKey],
+                                defaultValue:
+                                  "Please fill in the provided {{field}} configuration",
+                              })}
+                              value={
+                                configValues &&
+                                configValues[fieldKey] !== undefined
+                                  ? configValues[fieldKey]
+                                  : ""
+                              }
+                            />
+                          )}
                         </FormControl>
                       </FormItem>
                     ))}
