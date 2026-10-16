@@ -53,6 +53,7 @@
     "unknown": "An error occurred in the system, please try again later."
   },
   "footer": {
+    "contact": "Contact",
     "copyright": "All rights reserved",
     "privacyPolicy": "Privacy Policy",
     "tos": "Terms of Service"

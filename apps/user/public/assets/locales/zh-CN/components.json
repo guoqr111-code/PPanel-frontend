@@ -53,6 +53,7 @@
     "unknown": "系统发生错误，请稍后再试。"
   },
   "footer": {
+    "contact": "联系邮箱",
     "copyright": "版权所有",
     "privacyPolicy": "隐私政策",
     "tos": "服务条款"

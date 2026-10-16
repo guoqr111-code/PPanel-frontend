@@ -78,10 +78,15 @@ export async function proxyRequest(
   env: Env,
   upstreamFetch: typeof fetch = fetch
 ) {
-  const apiBase = (env.API_BASE_URL || "https://api.ppanel.dev").replace(
-    /\/$/,
-    ""
-  );
+  // 未配置时必须拒绝，而不是回退到某个默认后端：否则漏配会把用户的
+  // 登录凭据和请求静默转发给第三方。
+  if (!env.API_BASE_URL) {
+    return new Response(
+      JSON.stringify({ error: "API_BASE_URL is not configured" }),
+      { status: 500, headers: { "content-type": "application/json" } }
+    );
+  }
+  const apiBase = env.API_BASE_URL.replace(/\/$/, "");
 
   const url = new URL(request.url);
   const targetUrl = `${apiBase}${url.pathname}${url.search}`;
