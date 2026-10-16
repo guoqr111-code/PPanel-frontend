@@ -1,0 +1,33 @@
+# syntax=docker/dockerfile:1
+# 用户端与管理端的静态页镜像：编译 apps/user 与 apps/admin，放进 nginx。
+# 部署时它直接替代 docker-compose 里的 nginx 服务；站点配置与证书仍由部署仓库挂载，
+# 因此镜像里只有静态文件，不含任何域名或密钥。
+#
+# 目录布局与 nginx 配置一致：
+#   /usr/share/nginx/html/web/user    用户端（站点根路径 /）
+#   /usr/share/nginx/html/web/admin   管理端（/admin/）
+
+FROM oven/bun:1.3.1 AS build
+WORKDIR /src
+
+COPY . .
+# --ignore-scripts：根 package.json 的 prepare 会调用 husky 与 gitmoji，容器内没有
+# git 仓库也没有网络需求，跳过即可，不影响编译。
+RUN bun install --frozen-lockfile --ignore-scripts
+
+# 构建期变量会被 Vite 内联进产物，修改后需要重新构建镜像。
+# VITE_API_PREFIX 必须与 nginx 的 API 反代前缀一致（nginx 转发前会去掉该前缀）。
+ARG VITE_API_PREFIX=/api
+ARG VITE_SHOW_LANDING_PAGE=true
+ARG VITE_NODE_INSTALL_SCRIPT_URL=
+ENV VITE_API_PREFIX=${VITE_API_PREFIX} \
+    VITE_SHOW_LANDING_PAGE=${VITE_SHOW_LANDING_PAGE} \
+    VITE_NODE_INSTALL_SCRIPT_URL=${VITE_NODE_INSTALL_SCRIPT_URL}
+
+# 不经 turbo：turbo 的严格环境模式会过滤掉上面的 VITE_* 变量。
+RUN cd apps/admin && bun run build \
+ && cd ../user && bun run build
+
+FROM nginx:stable-alpine3.24
+COPY --from=build /src/apps/user/dist /usr/share/nginx/html/web/user
+COPY --from=build /src/apps/admin/dist /usr/share/nginx/html/web/admin
