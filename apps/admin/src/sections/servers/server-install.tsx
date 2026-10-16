@@ -24,6 +24,12 @@ import {
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+// 节点安装脚本会以 root 身份执行并拿到节点密钥，来源应由部署者掌控：
+// 请将 VITE_NODE_INSTALL_SCRIPT_URL 指向自己 fork 并审计过的 ppanel-node 脚本。
+const NODE_INSTALL_SCRIPT_URL =
+  import.meta.env.VITE_NODE_INSTALL_SCRIPT_URL ||
+  "https://raw.githubusercontent.com/perfect-panel/ppanel-node/master/scripts/install.sh";
+
 type Props = {
   server: API.Server;
   trigger?: ReactNode;
@@ -52,7 +58,7 @@ export default function ServerInstall({ server, trigger }: Props) {
 
   const installCommand = useMemo(() => {
     const secret = cfgResp?.node_secret ?? "";
-    return `wget -N https://raw.githubusercontent.com/perfect-panel/ppanel-node/master/scripts/install.sh && bash install.sh --api-host ${domain} --server-id ${server.id} --secret-key ${secret}`;
+    return `wget -N ${NODE_INSTALL_SCRIPT_URL} && bash install.sh --api-host ${domain} --server-id ${server.id} --secret-key ${secret}`;
   }, [domain, server.id, cfgResp?.node_secret]);
 
   async function handleCopy() {

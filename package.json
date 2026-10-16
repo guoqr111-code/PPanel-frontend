@@ -2,13 +2,13 @@
   "name": "frontend",
   "version": "1.22.0",
   "private": true,
-  "homepage": "https://github.com/perfect-panel/frontend",
+  "homepage": "https://github.com/guoqr111-code/PPanel-frontend",
   "bugs": {
-    "url": "https://github.com/perfect-panel/frontend/issues/new"
+    "url": "https://github.com/guoqr111-code/PPanel-frontend/issues/new"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/perfect-panel/frontend.git"
+    "url": "https://github.com/guoqr111-code/PPanel-frontend.git"
   },
   "license": "GUN",
   "scripts": {

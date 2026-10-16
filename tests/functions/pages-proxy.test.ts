@@ -97,4 +97,26 @@ describe("Pages API proxy forwarding headers", () => {
       "https://panel.example.com/oauth/apple/?code=code&state=state"
     );
   });
+
+  test("refuses to proxy when API_BASE_URL is not configured instead of falling back to an upstream host", async () => {
+    let called = false;
+    const upstreamFetch = (async () => {
+      called = true;
+      return new Response("should not be reached");
+    }) as typeof fetch;
+
+    for (const env of [{}, { API_BASE_URL: "" }]) {
+      const response = await proxyRequest(
+        new Request("https://panel.example.com/v1/auth/login", {
+          method: "POST",
+          body: "{}",
+          headers: { authorization: "Bearer token" },
+        }),
+        env,
+        upstreamFetch
+      );
+      expect(response.status).toBe(500);
+    }
+    expect(called).toBe(false);
+  });
 });
