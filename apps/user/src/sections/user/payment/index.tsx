@@ -59,10 +59,6 @@ export default function Page() {
 
   const { data: payment } = useQuery({
     enabled: !!order_no && data?.status === 1,
-    // 发起支付只能执行一次：切回本页（比如在三方页付完款后）若再次请求，
-    // 订单已支付会报 Order status error，未入账时还会再弹出一个收银台。
-    refetchOnWindowFocus: false,
-    staleTime: Number.POSITIVE_INFINITY,
     queryKey: ["purchaseCheckout", order_no],
     queryFn: async () => {
       const { data } = await purchaseCheckout({
